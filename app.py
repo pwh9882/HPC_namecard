@@ -14,7 +14,7 @@ llm = AzureChatOpenAI(
     api_key=st.secrets["AZURE_OPENAI_API_KEY"],
     api_version=st.secrets["OPENAI_API_VERSION"],
     azure_endpoint=st.secrets["AZURE_OPENAI_ENDPOINT"],
-    deployment=st.secrets["AZURE_OPENAI_DEPLOYMENT"]
+    model=st.secrets["AZURE_OPENAI_DEPLOYMENT"]
 )
 
 
