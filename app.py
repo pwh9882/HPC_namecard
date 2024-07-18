@@ -1,6 +1,4 @@
 import streamlit as st
-from dotenv import load_dotenv
-import os
 import io
 
 from PIL import Image
@@ -11,14 +9,12 @@ import json
 
 from db import init_db, save_business_card, get_all_business_cards
 
-load_dotenv()
-
 # Azure OpenAI 설정
 llm = AzureChatOpenAI(
-    api_key=os.getenv("API_KEY"),
-    api_version=os.getenv("OPENAI_API_VERSION"),
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-    model=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+    api_key=st.secrets["AZURE_OPENAI_API_KEY"],
+    api_version=st.secrets["OPENAI_API_VERSION"],
+    azure_endpoint=st.secrets["AZURE_OPENAI_ENDPOINT"],
+    deployment=st.secrets["AZURE_OPENAI_DEPLOYMENT"]
 )
 
 
