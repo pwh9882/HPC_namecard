@@ -12,17 +12,19 @@ def init_db():
                   phone TEXT,
                   email TEXT,
                   address TEXT,
-                  company TEXT)''')
+                  company TEXT,
+                  image TEXT)''')
     conn.commit()
     conn.close()
 
 
 def save_business_card(info: Dict[str, str]):
+    print("saving...")
     conn = sqlite3.connect('business_cards.db')
     c = conn.cursor()
-    c.execute('''INSERT INTO business_cards (name, title, phone, email, address, company)
-                 VALUES (?, ?, ?, ?, ?, ?)''',
-              (info['name'], info['title'], info['phone'], info['email'], info['address'], info['company']))
+    c.execute('''INSERT INTO business_cards (name, title, phone, email, address, company, image)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)''',
+              (info['name'], info['title'], info['phone'], info['email'], info['address'], info['company'], info['image']))
     conn.commit()
     conn.close()
 
@@ -34,3 +36,18 @@ def get_all_business_cards():
     cards = c.fetchall()
     conn.close()
     return cards
+
+
+if __name__ == "__main__":
+    save_business_card(
+        {
+            "name": "김 나 연",
+            "title": "Product Manager",
+            "phone": "NULL",
+            "email": "hello@reallygreatsite.com",
+            "address": "123 Anywhere St., Any City, ST 12345",
+            "company": "larana",
+            "image": "base64imagestring"  # base64 인코딩된 이미지 데이터
+        }
+    )
+    print(get_all_business_cards())

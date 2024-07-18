@@ -1,27 +1,39 @@
 import streamlit as st
 from PIL import Image
+import io
+import base64
+from db import init_db, save_business_card, get_all_business_cards
+
+
+def decode_image(base64_image):
+    # base64 문자열을 바이트로 디코딩
+    image_data = base64.b64decode(base64_image)
+    # 바이트 데이터를 이미지로 변환
+    image = Image.open(io.BytesIO(image_data))
+    return image
 
 
 def main():
     st.title("Business Card History")
 
-    st.write("Here you can see the history of uploaded business cards.")
+    # Add a section to display all saved business cards
+    st.subheader("Saved Business Cards")
+    cards = get_all_business_cards()
 
-    # Placeholder for loading history data
-    history = [
-        {"name": "John Doe", "job_title": "Software Engineer", "company": "Tech Corp",
-            "phone": "123-456-7890", "email": "john.doe@example.com", "website": "www.techcorp.com"},
-        {"name": "Jane Smith", "job_title": "Project Manager", "company": "Business Solutions",
-            "phone": "098-765-4321", "email": "jane.smith@bizsolutions.com", "website": "www.bizsolutions.com"}
-    ]
+    for card in cards:
+        st.write(f"Name: {card[1]}, Title: {card[2]}, Company: {card[6]}")
+        st.write(f"Phone: {card[3]}, Email: {card[4]}")
+        st.write(f"Address: {card[5]}")
 
-    for entry in history:
-        st.subheader(entry["name"])
-        st.write(f"**Job Title:** {entry['job_title']}")
-        st.write(f"**Company:** {entry['company']}")
-        st.write(f"**Phone:** {entry['phone']}")
-        st.write(f"**Email:** {entry['email']}")
-        st.write(f"**Website:** {entry['website']}")
+        # 복구한 이미지 표시
+        image = decode_image(card[7])
+        st.image(
+            image,
+            caption=f"{card[1]}'s Business Card",
+            use_column_width=True
+        )
+
+        st.write("---")
 
 
 if __name__ == "__main__":

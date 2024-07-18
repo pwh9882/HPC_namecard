@@ -9,6 +9,8 @@ from langchain.schema import HumanMessage, SystemMessage
 import base64
 import json
 
+from db import init_db, save_business_card, get_all_business_cards
+
 load_dotenv()
 
 # Azure OpenAI 설정
@@ -57,11 +59,15 @@ def extract_info_from_image(image):
 
     response = llm.invoke(messages)
 
-    return response.content
+    return response.content, base64_image
 
 
 def main():
+    init_db()
     st.title("Business Card Recognition App")
+
+    if 'extracted_info' not in st.session_state:
+        st.session_state.extracted_info = None
 
     uploaded_file = st.file_uploader(
         "Upload a business card image", type=["jpg", "jpeg", "png"])
@@ -71,37 +77,42 @@ def main():
         st.image(image, caption="Uploaded Business Card",
                  use_column_width=True)
 
-        if st.button("Extract Information"):
-            with st.spinner("Extracting information..."):
-                extracted_info = extract_info_from_image(image)
-                st.subheader("Extracted Information:")
-                # st.write(extracted_info)
-                decoded_info = json.loads(extracted_info)
-                print(decoded_info)
-                name = st.text_input(
-                    "Name", decoded_info.get("name", "NULL"))
-                title = st.text_input(
-                    "Title", decoded_info.get("title", "NULL"))
-                phone = st.text_input(
-                    "Phone", decoded_info.get("phone", "NULL"))
-                email = st.text_input(
-                    "Email", decoded_info.get("email", "NULL"))
-                address = st.text_input(
-                    "Address", decoded_info.get("address", "NULL"))
-                company = st.text_input(
-                    "Company", decoded_info.get("company", "NULL"))
+        extract_info_btn = st.button("Extract Information")
 
-                if st.button("Save Information"):
-                    updated_info = {
-                        "name": name,
-                        "title": title,
-                        "phone": phone,
-                        "email": email,
-                        "address": address,
-                        "company": company
-                    }
-                    st.write("Updated Information:")
-                    st.json(updated_info)
+        if extract_info_btn:
+            with st.spinner("Extracting information..."):
+                extracted_info, base64_image = extract_info_from_image(image)
+                st.session_state.extracted_info = json.loads(extracted_info)
+                st.session_state.base64_image = base64_image
+
+        if st.session_state.extracted_info:
+            st.subheader("Extracted Information:")
+            name = st.text_input(
+                "Name", st.session_state.extracted_info.get("name", "NULL"))
+            title = st.text_input(
+                "Title", st.session_state.extracted_info.get("title", "NULL"))
+            phone = st.text_input(
+                "Phone", st.session_state.extracted_info.get("phone", "NULL"))
+            email = st.text_input(
+                "Email", st.session_state.extracted_info.get("email", "NULL"))
+            address = st.text_input(
+                "Address", st.session_state.extracted_info.get("address", "NULL"))
+            company = st.text_input(
+                "Company", st.session_state.extracted_info.get("company", "NULL"))
+
+            if st.button("Save Information"):
+                info = {
+                    "name": name,
+                    "title": title,
+                    "phone": phone,
+                    "email": email,
+                    "address": address,
+                    "company": company,
+                    "image": st.session_state.base64_image
+                }
+                save_business_card(info)
+                st.success("Business card information saved successfully!")
+                print("Information saved to database")  # 콘솔에 출력
 
 
 if __name__ == "__main__":
