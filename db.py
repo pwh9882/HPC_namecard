@@ -38,6 +38,27 @@ def get_all_business_cards():
     return cards
 
 
+def update_business_card(card_id: int, info: Dict[str, str]):
+    print("updating...")
+    conn = sqlite3.connect('business_cards.db')
+    c = conn.cursor()
+    c.execute('''UPDATE business_cards
+                 SET name = ?, title = ?, phone = ?, email = ?, address = ?, company = ?, image = ?
+                 WHERE id = ?''',
+              (info['name'], info['title'], info['phone'], info['email'], info['address'], info['company'], info['image'], card_id))
+    conn.commit()
+    conn.close()
+
+
+def delete_business_card(card_id: int):
+    print("deleting...")
+    conn = sqlite3.connect('business_cards.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM business_cards WHERE id = ?', (card_id,))
+    conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
     save_business_card(
         {
