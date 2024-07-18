@@ -85,34 +85,36 @@ def main():
                 st.session_state.extracted_info = json.loads(extracted_info)
                 st.session_state.base64_image = base64_image
 
-        if st.session_state.extracted_info:
-            st.subheader("Extracted Information:")
-            name = st.text_input(
-                "Name", st.session_state.extracted_info.get("name", "NULL"))
-            title = st.text_input(
-                "Title", st.session_state.extracted_info.get("title", "NULL"))
-            phone = st.text_input(
-                "Phone", st.session_state.extracted_info.get("phone", "NULL"))
-            email = st.text_input(
-                "Email", st.session_state.extracted_info.get("email", "NULL"))
-            address = st.text_input(
-                "Address", st.session_state.extracted_info.get("address", "NULL"))
-            company = st.text_input(
-                "Company", st.session_state.extracted_info.get("company", "NULL"))
+    if st.session_state.extracted_info:
+        st.subheader("Extracted Information:")
+        name = st.text_input(
+            "Name", st.session_state.extracted_info.get("name", "NULL"), key="name")
+        title = st.text_input(
+            "Title", st.session_state.extracted_info.get("title", "NULL"), key="title")
+        phone = st.text_input(
+            "Phone", st.session_state.extracted_info.get("phone", "NULL"), key="phone")
+        email = st.text_input(
+            "Email", st.session_state.extracted_info.get("email", "NULL"), key="email")
+        address = st.text_input(
+            "Address", st.session_state.extracted_info.get("address", "NULL"), key="address")
+        company = st.text_input(
+            "Company", st.session_state.extracted_info.get("company", "NULL"), key="company")
 
-            if st.button("Save Information"):
-                info = {
-                    "name": name,
-                    "title": title,
-                    "phone": phone,
-                    "email": email,
-                    "address": address,
-                    "company": company,
-                    "image": st.session_state.base64_image
-                }
-                save_business_card(info)
-                st.success("Business card information saved successfully!")
-                print("Information saved to database")  # 콘솔에 출력
+        if st.button("Save Information"):
+            info = {
+                "name": name,
+                "title": title,
+                "phone": phone,
+                "email": email,
+                "address": address,
+                "company": company,
+                "image": st.session_state.base64_image
+            }
+            save_business_card(info)
+            st.session_state.extracted_info = None
+            st.session_state.base64_image = None
+            st.success("Business card information saved successfully!")
+            # st.rerun()
 
 
 if __name__ == "__main__":

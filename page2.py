@@ -20,6 +20,11 @@ def main():
     st.subheader("Saved Business Cards")
     cards = get_all_business_cards()
 
+    if 'edit_mode' not in st.session_state:
+        st.session_state.edit_mode = False
+    if 'edit_card_id' not in st.session_state:
+        st.session_state.edit_card_id = None
+
     for card in cards:
         col1, col2 = st.columns([1, 2])
 
@@ -30,7 +35,7 @@ def main():
                      card[1]}'s Business Card", use_column_width=True)
 
         with col2:
-            if 'edit_mode' in st.session_state and st.session_state.edit_mode and st.session_state.edit_card_id == card[0]:
+            if st.session_state.edit_mode and st.session_state.edit_card_id == card[0]:
                 st.subheader("Edit Business Card")
 
                 name = st.text_input("Name", card[1], key=f"name_{card[0]}")
@@ -42,21 +47,27 @@ def main():
                 company = st.text_input(
                     "Company", card[6], key=f"company_{card[0]}")
 
-                if st.button("Save Changes", key=f"save_{card[0]}"):
-                    info = {
-                        "name": name,
-                        "title": title,
-                        "phone": phone,
-                        "email": email,
-                        "address": address,
-                        "company": company,
-                        "image": card[7]  # 기존 이미지 사용
-                    }
-                    update_business_card(card[0], info)
-                    st.session_state.edit_mode = False
-                    st.experimental_rerun()
-                if st.button("Cancel", key=f"cancel_{card[0]}"):
-                    st.session_state.edit_mode = False
+                col3, col4 = st.columns([1, 1])
+                with col3:
+                    if st.button("Save Changes", key=f"save_{card[0]}"):
+                        info = {
+                            "name": name,
+                            "title": title,
+                            "phone": phone,
+                            "email": email,
+                            "address": address,
+                            "company": company,
+                            "image": card[7]  # 기존 이미지 사용
+                        }
+                        update_business_card(card[0], info)
+                        st.session_state.edit_mode = False
+                        st.session_state.edit_card_id = None
+                        st.rerun()
+                with col4:
+                    if st.button("Cancel", key=f"cancel_{card[0]}"):
+                        st.session_state.edit_mode = False
+                        st.session_state.edit_card_id = None
+                        st.rerun()
             else:
                 st.write(f"**Name:** {card[1]}")
                 st.write(f"**Title:** {card[2]}")
@@ -71,10 +82,11 @@ def main():
                         st.session_state.edit_card = card
                         st.session_state.edit_mode = True
                         st.session_state.edit_card_id = card[0]
+                        st.rerun()
                 with col4:
                     if st.button("Delete", key=f"delete_{card[0]}"):
                         delete_business_card(card[0])
-                        st.experimental_rerun()
+                        st.rerun()
 
         st.write("---")
 
